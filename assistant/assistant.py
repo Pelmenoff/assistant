@@ -7,7 +7,7 @@ def input_error(func):
         except ValueError:
             return "/// Invalid input."
         except IndexError:
-            return "/// Invalid command. Type \"help\" to show all commands "
+            return "/// Invalid command. Type \"help\" to show all commands."
     return wrapper
 
 
@@ -42,47 +42,46 @@ def phone_handler(name):
     return contacts[name]
 
 @input_error
-def show_all_handler():
+def show_all_handler(*args, **kwargs):
     if len(contacts) == 0:
         return "/// Contacts empty."
     else:
         return "\n".join(f"{name}: {phone}" for name, phone in contacts.items())
 
 
+@input_error
+def exit_handler():
+    return "/// Good bye!"
+         
+
+commands = {
+    "hello": hello_handler,
+    "add": add_handler,
+    "change": change_handler,
+    "phone": phone_handler,
+}
+
+
 def main():
     while True:
-        c = input("/// ---> ").lower()
-        
-        if c == "good bye" or c == "close" or c == "exit" or c == "quit" or c == "q":
-            print("/// Good bye!")
+        user_input = input("/// Enter command: ")
+        command_parts = user_input.split(" ")
+        command = command_parts[0].lower()
+        args = command_parts[1:]
+
+        if command == "exit" or command == "good bye" or command == "close" or command == "quit" or command == "q":
+            print(exit_handler())
             break
-        
-        if c == "hello":
-            print(hello_handler())
-        elif c.startswith("help"):
+        elif command == "help":
             print(help_info)
-        elif c.startswith("add"):
-            try:
-                _, name, phone = c.split()
-                print(add_handler(name, phone))
-            except ValueError:
-                print("/// Give me name and phone please.")
-        elif c.startswith("change"):
-            try:
-                _, name, phone = c.split()
-                print(change_handler(name, phone))
-            except ValueError:
-                print("/// Give me name and phone please.")
-        elif c.startswith("phone"):
-            try:
-                _, name = c.split()
-                print(phone_handler(name))
-            except ValueError:
-                print("/// Enter user name.")
-        elif c == "show all":
+        elif command == "show" and "all" in args:
             print(show_all_handler())
+        
         else:
-            print("/// Invalid command. Type \"help\" to show all commands ")
+            try:
+                print(commands[command](*args))
+            except (IndexError, KeyError):
+                print("/// Invalid command. Type \"help\" to show all commands.")
 
 
 if __name__ == "__main__":
