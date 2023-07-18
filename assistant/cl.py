@@ -1,4 +1,5 @@
 from typing import Optional
+from collections import UserDict
 
 
 class Field:
@@ -21,9 +22,9 @@ class Phone(Field):
 
 
 class Record:
-    def __init__(self, name):
+    def __init__(self, name, phone=None):
         self.name = name
-        self.phones = []
+        self.phones = [] if phone is None else [phone]
 
     def add_phone(self, phone):
         self.phones.append(phone)
@@ -40,21 +41,17 @@ class Record:
         return f"/// {self.name}: {', '.join(str(phone) for phone in self.phones)}"
 
 
-class AddressBook:
-    def __init__(self):
-        self.contacts = []
-
-    def add_record(self, record):
-        self.contacts.append(record)
+class AddressBook(UserDict):
+    def add_record(self, name, phone):
+        record = Record(name, phone)
+        self.data[name] = record
 
     def get(self, name: str) -> Optional[Record]:
-        for record in self.contacts:
-            if str(record.name) == name:
-                return record
-        return None
+        return self.data.get(name)
 
     def get_all_contacts(self):
-        return self.contacts
+        return list(self.data.values())
 
     def __iter__(self):
-        return iter(self.contacts)
+        return iter(self.data.values())
+

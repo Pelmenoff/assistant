@@ -39,16 +39,15 @@ def add_handler(*args):
     if len(args) < 2:
         return "/// Invalid command. Please provide name and phone."
 
-    name = Name(args[0])
+    name = str(Name(args[0]))
     phone = Phone(args[1])
-    rec: Record = address_book.get(str(name))
+    rec: Record = address_book.get(name)
     if rec:
         return rec.add_phone(phone)
 
-    rec = Record(name)
-    rec.add_phone(phone)
-    address_book.add_record(rec)
-    return f"/// Contact {rec.name}: {phone} added successfully"
+    address_book.add_record(name, phone)
+    return f"/// Contact {name}: {phone} added successfully"
+
 
 
 @input_error
@@ -56,11 +55,11 @@ def change_handler(*args):
     if len(args) < 3:
         return "/// Invalid command. Please provide name, old phone, and new phone."
 
-    name = Name(args[0])
+    name = args[0]
     old_phone = Phone(args[1])
     new_phone = Phone(args[2])
 
-    rec: Record = address_book.get(str(name))
+    rec: Record = address_book.get(name)
     if rec:
         if any(str(phone) == str(old_phone) for phone in rec.phones):
             rec.change_phone(old_phone, new_phone)
@@ -69,6 +68,7 @@ def change_handler(*args):
             return f"/// Phone number {old_phone} not found for contact {name}"
     else:
         return f"/// No contacts with name: \"{name}\" in the address book"
+
 
 
 
