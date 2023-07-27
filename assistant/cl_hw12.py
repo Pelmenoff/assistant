@@ -25,21 +25,25 @@ class Name(Field):
     pass
 
 class Phone(Field):
-    def __init__(self, value):
-        super().__init__(value)
+    # def __init__(self, value):
+    #     super().__init__(value)
 
-    def validate_phone(self, value):
+    # def validate_phone(self, value):
+    #     if not value.isdigit() or len(value) != 10:
+    #         raise ValueError("Invalid phone number format. Please provide a 10-digit number.")
+    #     return value
+    
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, value):
         if not value.isdigit() or len(value) != 10:
             raise ValueError("Invalid phone number format. Please provide a 10-digit number.")
+        self._value = value
+        # super(Phone, Phone).value.__set__(self, new_value)
 
-    @Field.value.setter
-    def value(self, new_value):
-        self.validate_phone(new_value)
-        super(Phone, Phone).value.__set__(self, new_value)
-
-    @Field.value.getter
-    def value(self):
-        return super(Phone, Phone).value.__get__(self)
 
 class Birthday(Field):
     def __init__(self, value):
