@@ -12,7 +12,7 @@ def input_error(func):
         except KeyError:
             return "/// Contact not found."
         except ValueError:
-            return "/// Invalid input."
+            return "/// Invalid input. Provide a 10-digit number in the format [1234567890] or Date of birth in the format [XX.XX.XXXX]"
         except IndexError:
             return "/// Invalid command. Type \"help\" to show all commands."
     return wrapper
@@ -44,7 +44,7 @@ def add_handler(*args):
         return "/// Invalid command. Please provide name and phone."
 
     name = str(Name(args[0]))
-    phone = Phone(args[1])
+    phone = str(args[1])
     birthday = None
     if len(args) > 2:
         birthday = Birthday(datetime.strptime(args[2], "%d.%m.%Y").date())
@@ -63,12 +63,12 @@ def cp_handler(*args):
         return "/// Invalid command. Please provide name, old phone, and new phone."
 
     name = args[0]
-    old_phone = Phone(args[1])
-    new_phone = Phone(args[2])
+    old_phone = args[1]
+    new_phone = args[2]
 
     rec: Record = address_book.get(name)
     if rec:
-        if any(str(phone) == str(old_phone) for phone in rec.phones):
+        if any(str(phone) == old_phone for phone in rec.phones):
             rec.change_phone(old_phone, new_phone)
             return f"/// Phone number changed from {old_phone} to {new_phone} for contact {name}"
         else:

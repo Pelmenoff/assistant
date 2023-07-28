@@ -13,7 +13,7 @@ class Field:
 
     @value.setter
     def value(self, new_value):
-        self._value = new_value
+        self._value = str(new_value)
 
     def __str__(self) -> str:
         return self._value
@@ -22,68 +22,81 @@ class Field:
         return str(self)
 
 
-class Name(Field):
-    pass
+class Name:
+    def __init__(self, value=None):
+        self._value = value
 
+    @property
+    def value(self):
+        return self._value
 
-class Phone(Field):
-    def __init__(self, value):
-        super().__init__(value)
+    @value.setter
+    def value(self, new_value):
+        self._value = str(new_value).capitalize()
 
-    def validate_phone(self, value):
+    def __str__(self):
+        return str(self._value)
+
+class Phone:
+    def __init__(self, value=None):
+        self._value = None
+        if value:
+            self.value = value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
         if not value.isdigit() or len(value) != 10:
             raise ValueError("Invalid phone number format. Please provide a 10-digit number.")
+        self._value = value
 
-    @Field.value.setter
-    def value(self, new_value):
-        self.validate_phone(new_value)
-        super(Phone, Phone).value.__set__(self, new_value)
+    def __str__(self):
+        return self.value
 
-    @Field.value.getter
+
+class Birthday:
+    def __init__(self, value=None):
+        self._value = None
+        if value:
+            self.value = value
+
+    @property
     def value(self):
-        return super(Phone, Phone).value.__get__(self)
+        return self._value
 
-
-class Birthday(Field):
-    def __init__(self, value):
-        super().__init__(value)
-
-    def validate_birthday(self, value):
+    @value.setter
+    def value(self, value):
         if not isinstance(value, date):
             raise ValueError("Invalid birthday format. Please provide a date object.")
-
-    @Field.value.setter
-    def value(self, new_value):
-        self.validate_birthday(new_value)
-        super(Birthday, Birthday).value.__set__(self, new_value)
-
-    @Field.value.getter
-    def value(self):
-        return super(Birthday, Birthday).value.__get__(self)
+        self._value = value
 
     def __str__(self):
         return self.value.strftime("%d-%m-%Y")
-
-    def __repr__(self):
-        return str(self.value)
 
 
 class Record:
     def __init__(self, name, phone=None, birthday=None):
         self.name = name
-        self.phones = [] if phone is None else [phone]
+        self.phones = [] if phone is None else [Phone(phone)]
         self.birthday = birthday
 
     def add_phone(self, phone):
-        self.phones.append(phone)
-        return f"/// Contact {self.name}: {phone} added successfully"
+        new_phone = Phone(phone)
+        self.phones.append(new_phone)
+        return f"/// Contact {self.name}: {new_phone.value} added successfully"
 
     def change_phone(self, old_phone, new_phone):
-        if any(str(phone) == str(old_phone) for phone in self.phones):
-            self.phones = [new_phone if str(phone) == str(old_phone) else phone for phone in self.phones]
-            return f"/// Phone number changed from {old_phone} to {new_phone} for contact {self.name}"
+        old_phone = Phone(old_phone)
+        new_phone = Phone(new_phone)
+
+        if old_phone.value in [phone.value for phone in self.phones]:
+            self.phones = [new_phone if phone.value == old_phone.value else phone for phone in self.phones]
+            return f"/// Phone number changed from {old_phone.value} to {new_phone.value} for contact {self.name}"
         else:
-            return f"/// Phone number {old_phone} not found for contact {self.name}"
+            return f"/// Phone number {old_phone.value} not found for contact {self.name}"
 
     def days_to_birthday(self):
         if self.birthday:
